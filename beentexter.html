@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BEENTEXTER_TERMINAL_v3.2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&family=Press+Start+2P&family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- THEME SETUP --- */
+        :root {
+            --bg-color: #050505;
+            --panel-color: #0a0a0a;
+            --border-color: #333;
+            --accent-color: #2563eb;
+            --grid-color: rgba(255, 255, 255, 0.05);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 20px 20px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* --- FONTS --- */
+        .font-tech { font-family: 'Share Tech Mono', monospace; }
+        .font-vt323 { font-family: 'VT323', monospace; }
+        .font-pixel { font-family: 'Press Start 2P', cursive; }
+        .font-code { font-family: 'JetBrains Mono', monospace; }
+
+        /* --- UI COMPONENTS --- */
+        .panel {
+            background: var(--panel-color);
+            border: 1px solid var(--border-color);
+            box-shadow: 4px 4px 0px 0px #1a1a1a;
+        }
+
+        /* Custom Range Slider (Cyber Style) */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border: 2px solid var(--accent-color);
+            background: #000;
+            cursor: pointer;
+            margin-top: -6px;
+            transition: all 0.1s;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            background: var(--accent-color);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            background: #333;
+        }
+
+        /* --- PREVIEW EFFECTS --- */
+        .scanlines {
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.3));
+            background-size: 100% 4px;
+            position: absolute; inset: 0; pointer-events: none; z-index: 20;
+        }
+        .noise {
+            position: absolute; inset: 0; pointer-events: none; z-index: 19;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.5'/%3E%3C/svg%3E");
+            opacity: 0.05;
+        }
+        .vignette {
+            background: radial-gradient(circle, rgba(0,0,0,0) 60%, rgba(0,0,0,1) 100%);
+            position: absolute; inset: 0; pointer-events: none; z-index: 21;
+        }
+
+        /* Aspect Ratios */
+        .aspect-square { aspect-ratio: 1/1; }
+        .aspect-feed { aspect-ratio: 4/5; }
+        .aspect-story { aspect-ratio: 9/16; }
+        .aspect-landscape { aspect-ratio: 16/9; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #333; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+    </style>
+</head>
+<body class="text-slate-300 min-h-screen flex flex-col items-center p-3 lg:p-8">
+
+    <!-- HEADER -->
+    <header class="w-full max-w-6xl flex justify-between items-end mb-4 lg:mb-6 border-b border-gray-800 pb-4">
+        <div>
+            <h1 class="text-2xl lg:text-4xl font-black text-white tracking-tighter italic">
+                BEEN<span class="text-blue-600">TEXTER</span>_
+            </h1>
+            <p class="text-[10px] lg:text-xs text-gray-500 font-code mt-1 lowercase">/// 'feelin on typin'</p>
+        </div>
+        <div class="hidden md:block text-right">
+            <div class="text-[10px] text-gray-600">STATUS: ONLINE</div>
+            <div class="text-[10px] text-gray-600">RENDER: CANVAS_2D</div>
+        </div>
+    </header>
+
+    <!-- MAIN LAYOUT: flex-col-reverse untuk Mobile (Preview di atas), flex-row untuk Desktop (Kiri Kanan) -->
+    <div class="w-full max-w-6xl flex flex-col-reverse lg:flex-row gap-6 lg:gap-8 items-start">
+
+        <!-- LEFT PANEL: CONTROLS (Bawah di Mobile, Kiri di Desktop) -->
+        <!-- Added lg:sticky to keep controls visible on large screens -->
+        <div class="w-full lg:w-[350px] flex-shrink-0 space-y-4 lg:sticky lg:top-8">
+            
+            <!-- 1. INPUT -->
+            <div class="panel p-4">
+                <div class="flex justify-between mb-2">
+                    <label class="text-[10px] font-bold text-blue-500 uppercase tracking-widest">Input Stream</label>
+                    <span class="text-[10px] text-gray-600">TXT</span>
+                </div>
+                <textarea id="quoteInput" rows="3" 
+                    class="w-full bg-black border border-gray-800 text-white p-3 font-tech text-base lg:text-lg focus:border-blue-600 outline-none placeholder-gray-700 resize-none" 
+                    placeholder="TYPE_HERE...">WHAT DOES FREEDOM LOOK LIKE WITH NO WITNESS?</textarea>
+            </div>
+
+            <!-- 2. LAYOUT & FORMAT -->
+            <div class="panel p-4 space-y-4">
+                <div class="flex items-center gap-2 border-b border-gray-800 pb-2 mb-3">
+                    <i data-lucide="layout-grid" class="w-4 h-4 text-gray-400"></i>
+                    <span class="text-xs font-bold text-white uppercase">Canvas Config</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-[9px] text-gray-500 block mb-1">FORMAT</label>
+                        <select id="aspectSelect" class="w-full bg-black border border-gray-700 text-xs text-white p-2 outline-none focus:border-blue-600">
+                            <option value="square">1:1 Square</option>
+                            <option value="feed">4:5 Portrait</option>
+                            <option value="story">9:16 Story</option>
+                            <option value="landscape">16:9 Desktop</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[9px] text-gray-500 block mb-1">MODE</label>
+                        <select id="shapeSelect" class="w-full bg-black border border-gray-700 text-xs text-white p-2 outline-none focus:border-blue-600">
+                            <option value="linear">Linear</option>
+                            <option value="circle">Circular</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Alignment (Linear Only) -->
+                <div id="alignControlGroup">
+                    <label class="text-[9px] text-gray-500 block mb-1">ALIGNMENT</label>
+                    <div class="flex border border-gray-700 bg-black">
+                        <button class="flex-1 py-2 hover:bg-gray-800 text-gray-500 align-btn transition" data-align="left" onclick="setAlign('left')"><i data-lucide="align-left" class="w-3 h-3 mx-auto"></i></button>
+                        <button class="flex-1 py-2 hover:bg-gray-800 text-gray-500 align-btn transition" data-align="center" onclick="setAlign('center')"><i data-lucide="align-center" class="w-3 h-3 mx-auto"></i></button>
+                        <button class="flex-1 py-2 hover:bg-gray-800 text-gray-500 align-btn transition" data-align="right" onclick="setAlign('right')"><i data-lucide="align-right" class="w-3 h-3 mx-auto"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. VISUALS -->
+            <div class="panel p-4 space-y-4">
+                <div class="flex items-center gap-2 border-b border-gray-800 pb-2 mb-3">
+                    <i data-lucide="sliders-horizontal" class="w-4 h-4 text-gray-400"></i>
+                    <span class="text-xs font-bold text-white uppercase">Visual Parameter</span>
+                </div>
+
+                <!-- Font -->
+                <div>
+                    <label class="text-[9px] text-gray-500 block mb-1">TYPOGRAPHY</label>
+                    <select id="fontSelect" class="w-full bg-black border border-gray-700 text-xs text-white p-2 outline-none focus:border-blue-600 font-mono">
+                        <option value="font-tech">Share Tech Mono (Cyber)</option>
+                        <option value="font-vt323">VT323 (Terminal)</option>
+                        <option value="font-pixel">Press Start 2P (8-Bit)</option>
+                        <option value="font-code">JetBrains Mono (Code)</option>
+                    </select>
+                </div>
+
+                <!-- Colors -->
+                <div class="flex gap-2">
+                    <div class="flex-1">
+                        <label class="text-[9px] text-gray-500 block mb-1">BG COLOR</label>
+                        <div class="flex items-center bg-black border border-gray-700 p-1">
+                            <input type="color" id="bgColor" value="#3b82f6" class="w-full h-8 bg-transparent cursor-pointer">
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <label class="text-[9px] text-gray-500 block mb-1">TEXT COLOR</label>
+                        <div class="flex items-center bg-black border border-gray-700 p-1">
+                            <input type="color" id="textColor" value="#a5f3fc" class="w-full h-8 bg-transparent cursor-pointer">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sliders -->
+                <div class="space-y-4 pt-2">
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[10px] uppercase text-gray-400"><span>Size</span> <span id="valSize" class="text-blue-500">48</span></div>
+                        <input type="range" id="sliderSize" min="10" max="150" value="48">
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[10px] uppercase text-gray-400"><span>Noise</span> <span id="valNoise" class="text-blue-500">10%</span></div>
+                        <input type="range" id="sliderNoise" min="0" max="50" value="10">
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[10px] uppercase text-gray-400"><span>Glitch</span> <span id="valGlitch" class="text-red-500">0</span></div>
+                        <input type="range" id="sliderGlitch" min="0" max="20" value="0">
+                    </div>
+                </div>
+            </div>
+
+            <!-- ACTION -->
+            <button onclick="exportImage()" class="w-full py-4 bg-white text-black hover:bg-blue-600 hover:text-white transition-all font-black font-tech text-lg tracking-widest uppercase panel active:scale-[0.98] flex items-center justify-center gap-2 group mb-8 lg:mb-0">
+                <i data-lucide="download" class="w-5 h-5 group-hover:animate-bounce"></i>
+                Render Output
+            </button>
+
+        </div>
+
+        <!-- RIGHT PANEL: PREVIEW (Atas di Mobile, Kanan di Desktop) -->
+        <div class="w-full flex-1 flex flex-col items-center bg-[#080808] border border-gray-900 rounded-lg p-4 lg:p-12 relative overflow-hidden min-h-[300px]">
+            <!-- Decorative BG elements -->
+            <div class="absolute top-4 left-4 text-[10px] text-gray-800 font-mono">PREVIEW_MODE</div>
+            <div class="absolute bottom-4 right-4 text-[10px] text-gray-800 font-mono" id="resDisplay">1080x1080</div>
+
+            <!-- The Container -->
+            <div id="previewContainer" class="relative shadow-2xl transition-all duration-300 ease-in-out bg-black aspect-square w-full max-w-[600px] group border border-gray-800">
+                
+                <!-- EFFECTS LAYER (HTML CSS PREVIEW) -->
+                <div class="scanlines opacity-50"></div>
+                <div class="vignette opacity-60"></div>
+                <div id="noiseLayer" class="noise"></div>
+
+                <!-- CONTENT LAYER -->
+                <div id="previewContent" class="absolute inset-0 z-10 flex flex-col p-8 overflow-hidden transition-colors duration-100">
+                    
+                    <!-- HTML Text Mode -->
+                    <div id="htmlTextWrapper" class="w-full h-full flex items-center">
+                        <h1 id="htmlText" class="w-full break-words whitespace-pre-wrap leading-tight uppercase transition-none" style="font-size: 48px;">
+                            WHAT DOES FREEDOM LOOK LIKE WITH NO WITNESS?
+                        </h1>
+                    </div>
+
+                    <!-- Canvas Circle Mode (Hidden by default) -->
+                    <canvas id="circlePreviewCanvas" class="absolute inset-0 w-full h-full hidden pointer-events-none"></canvas>
+
+                </div>
+            </div>
+            <p class="mt-4 text-[10px] text-gray-600 font-mono text-center max-w-md hidden lg:block">
+                NOTE: Preview is an approximation. "Render Output" creates the high-fidelity PNG with baked-in effects.
+            </p>
+        </div>
+
+    </div>
+
+    <!-- FOOTER CREDIT -->
+    <footer class="w-full max-w-6xl mt-6 lg:mt-12 py-6 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center text-[10px] text-gray-500 font-code gap-2">
+        <div>
+            // SYSTEM_ID: BNTX_V3.2
+        </div>
+        <div class="flex items-center gap-4">
+            <span>LINKS:</span>
+            <a href="https://instagram.com/beenspace" target="_blank" class="hover:text-blue-500 hover:underline transition-colors flex items-center gap-1">
+                <i data-lucide="instagram" class="w-3 h-3"></i> beenspace
+            </a>
+            <span class="text-gray-700">|</span>
+            <a href="https://github.com/muqorrobinize" target="_blank" class="hover:text-blue-500 hover:underline transition-colors flex items-center gap-1">
+                <i data-lucide="github" class="w-3 h-3"></i> B$4BEIN
+            </a>
+        </div>
+    </footer>
+
+    <!-- INVISIBLE EXPORT CANVAS -->
+    <canvas id="exportCanvas" style="display: none;"></canvas>
+
+    <script>
+        lucide.createIcons();
+
+        // --- DOM ELEMENTS ---
+        const els = {
+            input: document.getElementById('quoteInput'),
+            container: document.getElementById('previewContainer'),
+            content: document.getElementById('previewContent'),
+            htmlText: document.getElementById('htmlText'),
+            htmlWrapper: document.getElementById('htmlTextWrapper'),
+            circleCanvas: document.getElementById('circlePreviewCanvas'),
+            noiseLayer: document.getElementById('noiseLayer'),
+            
+            // Inputs
+            aspect: document.getElementById('aspectSelect'),
+            shape: document.getElementById('shapeSelect'),
+            font: document.getElementById('fontSelect'),
+            bgColor: document.getElementById('bgColor'),
+            textColor: document.getElementById('textColor'),
+            
+            // Sliders
+            sSize: document.getElementById('sliderSize'),
+            sNoise: document.getElementById('sliderNoise'),
+            sGlitch: document.getElementById('sliderGlitch'),
+            
+            // Displays
+            vSize: document.getElementById('valSize'),
+            vNoise: document.getElementById('valNoise'),
+            vGlitch: document.getElementById('valGlitch'),
+            resDisplay: document.getElementById('resDisplay'),
+            alignGroup: document.getElementById('alignControlGroup')
+        };
+
+        // --- STATE ---
+        let state = {
+            align: 'left',
+            aspects: {
+                'square': { class: 'aspect-square', w: 1080, h: 1080 },
+                'feed': { class: 'aspect-feed', w: 1080, h: 1350 },
+                'story': { class: 'aspect-story', w: 1080, h: 1920 },
+                'landscape': { class: 'aspect-landscape', w: 1920, h: 1080 }
+            }
+        };
+
+        // --- UPDATE UI LOGIC ---
+        function updatePreview() {
+            const txt = els.input.value.toUpperCase() || " ";
+            const shape = els.shape.value;
+            const aspect = state.aspects[els.aspect.value];
+
+            // 1. Container Shape & Size
+            els.container.className = `relative shadow-2xl transition-all duration-300 ease-in-out border border-gray-800 w-full max-w-[600px] ${aspect.class}`;
+            els.resDisplay.innerText = `${aspect.w}x${aspect.h}px`;
+
+            // 2. Colors
+            els.content.style.backgroundColor = els.bgColor.value;
+            els.htmlText.style.color = els.textColor.value;
+
+            // 3. Noise Overlay Opacity
+            const noiseVal = els.sNoise.value;
+            els.noiseLayer.style.opacity = noiseVal / 100;
+            els.vNoise.innerText = noiseVal + "%";
+
+            // 4. Glitch CSS (Preview Only)
+            const glitchVal = parseInt(els.sGlitch.value);
+            els.vGlitch.innerText = glitchVal;
+            const glitchShadow = glitchVal > 0 
+                ? `${glitchVal}px 0px 0px rgba(255,0,0,0.7), -${glitchVal}px 0px 0px rgba(0,255,255,0.7)` 
+                : 'none';
+
+            // 5. Render Mode Switch
+            if (shape === 'circle') {
+                els.htmlWrapper.classList.add('hidden');
+                els.circleCanvas.classList.remove('hidden');
+                els.alignGroup.classList.add('opacity-30', 'pointer-events-none');
+                
+                renderCirclePreview(txt, glitchVal);
+            } else {
+                els.htmlWrapper.classList.remove('hidden');
+                els.circleCanvas.classList.add('hidden');
+                els.alignGroup.classList.remove('opacity-30', 'pointer-events-none');
+
+                // Update HTML Text
+                els.htmlText.innerText = txt;
+                els.htmlText.style.fontSize = els.sSize.value + 'px';
+                els.vSize.innerText = els.sSize.value + 'px';
+                
+                // Font
+                els.htmlText.className = `w-full break-words whitespace-pre-wrap leading-tight uppercase transition-none ${els.font.value}`;
+                
+                // Align
+                els.htmlText.style.textAlign = state.align;
+                els.htmlText.style.textShadow = glitchShadow;
+                
+                // Centering Wrapper
+                els.htmlWrapper.className = `w-full h-full flex flex-col ${
+                    state.align === 'center' ? 'items-center justify-center' : 
+                    state.align === 'right' ? 'items-end justify-center' : 
+                    'items-start justify-center'
+                }`;
+            }
+        }
+
+        // --- CIRCLE PREVIEW ON CANVAS ---
+        function renderCirclePreview(text, glitch) {
+            const canvas = els.circleCanvas;
+            const ctx = canvas.getContext('2d');
+            const rect = els.container.getBoundingClientRect();
+            
+            // Match Resolution
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const scale = canvas.width / 600; // Reference scale
+            const fontSize = els.sSize.value * scale;
+
+            ctx.fillStyle = els.textColor.value;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // Font Mapping
+            const fontMap = {
+                'font-tech': "'Share Tech Mono', monospace",
+                'font-vt323': "'VT323', monospace",
+                'font-pixel': "'Press Start 2P', cursive",
+                'font-code': "'JetBrains Mono', monospace"
+            };
+            ctx.font = `${fontSize}px ${fontMap[els.font.value]}`;
+
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+            const radius = Math.min(cx, cy) * 0.75;
+
+            drawCircularText(ctx, text, cx, cy, radius, 0, glitch * scale);
+        }
+
+        function drawCircularText(ctx, text, cx, cy, radius, startAngle, glitch) {
+            const chars = text.split('');
+            const angleStep = (Math.PI * 2) / chars.length;
+
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(-Math.PI / 2); // Start Top
+
+            chars.forEach((char, i) => {
+                ctx.save();
+                ctx.rotate(i * angleStep);
+                ctx.translate(0, -radius);
+
+                if (glitch > 0) {
+                    ctx.fillStyle = 'rgba(255,0,0,0.8)';
+                    ctx.fillText(char, glitch, 0);
+                    ctx.fillStyle = 'rgba(0,255,255,0.8)';
+                    ctx.fillText(char, -glitch, 0);
+                    ctx.fillStyle = els.textColor.value;
+                }
+                ctx.fillText(char, 0, 0);
+                ctx.restore();
+            });
+            ctx.restore();
+        }
+
+        function setAlign(align) {
+            state.align = align;
+            // Update buttons
+            document.querySelectorAll('.align-btn').forEach(btn => {
+                const isActive = btn.dataset.align === align;
+                btn.style.color = isActive ? '#2563eb' : '#6b7280';
+            });
+            updatePreview();
+        }
+
+        // --- EXPORT LOGIC ---
+        function exportImage() {
+            const canvas = document.getElementById('exportCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            const config = state.aspects[els.aspect.value];
+            canvas.width = config.w;
+            canvas.height = config.h;
+
+            // 1. Background
+            ctx.fillStyle = els.bgColor.value;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 2. Text Setup
+            const scaleFactor = canvas.width / 600; // Based on preview width
+            const fontSize = els.sSize.value * scaleFactor;
+            const glitch = parseInt(els.sGlitch.value) * scaleFactor;
+            const fontMap = {
+                'font-tech': "'Share Tech Mono', monospace",
+                'font-vt323': "'VT323', monospace",
+                'font-pixel': "'Press Start 2P', cursive",
+                'font-code': "'JetBrains Mono', monospace"
+            };
+            ctx.font = `${fontSize}px ${fontMap[els.font.value]}`;
+            ctx.fillStyle = els.textColor.value;
+
+            const text = els.input.value.toUpperCase();
+
+            // 3. Draw Text
+            if (els.shape.value === 'circle') {
+                ctx.textBaseline = 'middle';
+                ctx.textAlign = 'center';
+                const radius = Math.min(canvas.width, canvas.height) / 2 * 0.75;
+                drawCircularText(ctx, text, canvas.width/2, canvas.height/2, radius, 0, glitch);
+            } else {
+                ctx.textBaseline = 'top';
+                // Very Simple wrapping logic for Linear
+                const lineHeight = fontSize * 1.15;
+                const maxWidth = canvas.width - (160 * scaleFactor); // Padding
+                const words = text.split(' ');
+                let line = '';
+                let y = 0;
+                let lines = [];
+
+                // Simple wrap
+                for(let n = 0; n < words.length; n++) {
+                    let testLine = line + words[n] + ' ';
+                    let metrics = ctx.measureText(testLine);
+                    let testWidth = metrics.width;
+                    if (testWidth > maxWidth && n > 0) {
+                        lines.push(line);
+                        line = words[n] + ' ';
+                    } else {
+                        line = testLine;
+                    }
+                }
+                lines.push(line);
+
+                // Calculate Start Y for Vertical Center
+                const totalTextH = lines.length * lineHeight;
+                let startY = (canvas.height - totalTextH) / 2;
+
+                lines.forEach((l, i) => {
+                    let x = 100 * scaleFactor; // Default Left Padding
+                    if(state.align === 'center') x = canvas.width / 2;
+                    if(state.align === 'right') x = canvas.width - (100 * scaleFactor);
+                    
+                    ctx.textAlign = state.align;
+
+                    const drawY = startY + (i * lineHeight);
+
+                    if (glitch > 0) {
+                        ctx.fillStyle = 'rgba(255,0,0,0.8)';
+                        ctx.fillText(l, x + glitch, drawY);
+                        ctx.fillStyle = 'rgba(0,255,255,0.8)';
+                        ctx.fillText(l, x - glitch, drawY);
+                        ctx.fillStyle = els.textColor.value;
+                    }
+                    ctx.fillText(l, x, drawY);
+                });
+            }
+
+            // 4. Effects (Baked In)
+            
+            // Scanlines
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            for (let i = 0; i < canvas.height; i += 6) { ctx.fillRect(0, i, canvas.width, 3); }
+
+            // Noise (Procedural Grain)
+            const noiseIntensity = els.sNoise.value;
+            if (noiseIntensity > 0) {
+                const idata = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const buffer32 = new Uint32Array(idata.data.buffer);
+                const len = buffer32.length;
+                const alpha = Math.floor((noiseIntensity/100) * 255);
+                // Since per-pixel JS manipulation is heavy for 4k images, 
+                // let's use a simpler overlay method for the export:
+                ctx.globalCompositeOperation = 'overlay';
+                
+                for (let x = 0; x < canvas.width; x += 4) {
+                    for (let y = 0; y < canvas.height; y += 4) {
+                        if (Math.random() > 0.5) {
+                            ctx.fillStyle = `rgba(255,255,255,${noiseIntensity/300})`; // Light grain
+                            ctx.fillRect(x, y, 2, 2);
+                            ctx.fillStyle = `rgba(0,0,0,${noiseIntensity/300})`; // Dark grain
+                            ctx.fillRect(x+2, y+2, 2, 2);
+                        }
+                    }
+                }
+                ctx.globalCompositeOperation = 'source-over';
+            }
+
+            // Vignette
+            const gradient = ctx.createRadialGradient(canvas.width/2, canvas.height/2, canvas.height * 0.4, canvas.width/2, canvas.height/2, canvas.height * 0.9);
+            gradient.addColorStop(0, 'rgba(0,0,0,0)');
+            gradient.addColorStop(1, 'rgba(0,0,0,0.6)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Download
+            const link = document.createElement('a');
+            link.download = `BEENTEXTER_RENDER_${Date.now()}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // --- INIT ---
+        Object.values(els).forEach(el => {
+            if(el && el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') {
+                el.addEventListener('input', updatePreview);
+            }
+        });
+        setAlign('left'); // Init align
+        updatePreview();
+
+    </script>
+</body>
+</html>
