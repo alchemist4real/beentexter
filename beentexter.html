@@ -2,8 +2,13 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BEENTEXTER_TERMINAL_v3.2</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Retro Calculator Style Text Gen by Beentexter.">
+    <meta name="theme-color" content="#e4e0d1">
+    
+    <title>BEENTEXTER_ // RETRO_CALC</title>
+    
+    <!-- Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     
@@ -13,136 +18,240 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&family=Press+Start+2P&family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
 
     <style>
-        /* --- THEME SETUP --- */
+        /* --- RETRO CALCULATOR THEME --- */
         :root {
-            --bg-color: #050505;
-            --panel-color: #0a0a0a;
-            --border-color: #333;
-            --accent-color: #2563eb;
-            --grid-color: rgba(255, 255, 255, 0.05);
+            /* Palette: Old Plastic Beige */
+            --bg-color: #d6d3c2; 
+            --panel-color: #e4e0d1;
+            
+            /* LCD Screen */
+            --lcd-bg: #8b9c85; /* Classic greenish grey */
+            --lcd-text: #1a2218; /* Dark ink color */
+            
+            /* Accents */
+            --orange-btn: #cc5626;
+            --dark-btn: #3d3d3d;
+            --light-btn: #cecaba;
+            
+            --border-light: #f7f5ea;
+            --border-dark: #aba896;
         }
 
         body {
             background-color: var(--bg-color);
-            background-image: 
-                linear-gradient(var(--grid-color) 1px, transparent 1px),
-                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
-            background-size: 20px 20px;
+            /* Subtle noisy texture for plastic feel */
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
             font-family: 'JetBrains Mono', monospace;
+            color: #444;
         }
-
-        /* --- FONTS --- */
-        .font-tech { font-family: 'Share Tech Mono', monospace; }
-        .font-vt323 { font-family: 'VT323', monospace; }
-        .font-pixel { font-family: 'Press Start 2P', cursive; }
-        .font-code { font-family: 'JetBrains Mono', monospace; }
 
         /* --- UI COMPONENTS --- */
+        
+        /* The Plastic Case Look */
         .panel {
             background: var(--panel-color);
-            border: 1px solid var(--border-color);
-            box-shadow: 4px 4px 0px 0px #1a1a1a;
+            border-top: 2px solid var(--border-light);
+            border-left: 2px solid var(--border-light);
+            border-right: 2px solid var(--border-dark);
+            border-bottom: 2px solid var(--border-dark);
+            border-radius: 8px;
+            box-shadow: 4px 4px 10px rgba(0,0,0,0.1);
         }
 
-        /* Custom Range Slider (Cyber Style) */
+        /* The LCD Screen Input */
+        .lcd-screen {
+            background-color: var(--lcd-bg);
+            color: var(--lcd-text);
+            font-family: 'VT323', monospace;
+            box-shadow: inset 4px 4px 8px rgba(0,0,0,0.2), inset -2px -2px 4px rgba(255,255,255,0.2);
+            border-radius: 4px;
+            border: 4px solid #b8b4a4;
+        }
+        .lcd-screen::placeholder { color: rgba(26, 34, 24, 0.4); }
+
+        /* Retro Buttons */
+        .btn-retro {
+            background: var(--light-btn);
+            border-top: 2px solid #f0eee6;
+            border-left: 2px solid #f0eee6;
+            border-right: 2px solid #a3a092;
+            border-bottom: 2px solid #a3a092;
+            border-radius: 4px;
+            color: #333;
+            font-weight: bold;
+            transition: all 0.1s;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        }
+        .btn-retro:active {
+            transform: translate(1px, 1px);
+            border-top: 2px solid #a3a092;
+            border-left: 2px solid #a3a092;
+            border-right: 2px solid #f0eee6;
+            border-bottom: 2px solid #f0eee6;
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .btn-accent {
+            background: var(--orange-btn);
+            color: white;
+            border-top-color: #e67e55;
+            border-left-color: #e67e55;
+            border-right-color: #943a15;
+            border-bottom-color: #943a15;
+        }
+        
+        .btn-dark {
+            background: var(--dark-btn);
+            color: white;
+            border-top-color: #5c5c5c;
+            border-left-color: #5c5c5c;
+            border-right-color: #1a1a1a;
+            border-bottom-color: #1a1a1a;
+        }
+
+        /* Custom Range Slider (Grooved Track) */
         input[type=range] {
             -webkit-appearance: none;
             width: 100%;
             background: transparent;
         }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 16px;
-            width: 16px;
-            border: 2px solid var(--accent-color);
-            background: #000;
-            cursor: pointer;
-            margin-top: -6px;
-            transition: all 0.1s;
-        }
-        input[type=range]::-webkit-slider-thumb:hover {
-            background: var(--accent-color);
-        }
+        input[type=range]:focus { outline: none; }
+        
         input[type=range]::-webkit-slider-runnable-track {
             width: 100%;
-            height: 4px;
-            background: #333;
+            height: 6px;
+            background: #b8b4a4;
+            box-shadow: inset 1px 1px 2px rgba(0,0,0,0.2);
+            border-radius: 3px;
+        }
+        
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 18px;
+            width: 12px;
+            background: var(--dark-btn);
+            margin-top: -6px;
+            border-radius: 2px;
+            box-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+            cursor: pointer;
+        }
+
+        /* Dropdown Styling */
+        select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23444' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
         }
 
         /* --- PREVIEW EFFECTS --- */
         .scanlines {
-            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.3));
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.2));
             background-size: 100% 4px;
             position: absolute; inset: 0; pointer-events: none; z-index: 20;
         }
         .noise {
             position: absolute; inset: 0; pointer-events: none; z-index: 19;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.5'/%3E%3C/svg%3E");
-            opacity: 0.05;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.4'/%3E%3C/svg%3E");
         }
         .vignette {
-            background: radial-gradient(circle, rgba(0,0,0,0) 60%, rgba(0,0,0,1) 100%);
+            background: radial-gradient(circle, rgba(0,0,0,0) 55%, rgba(0,0,0,1) 120%);
             position: absolute; inset: 0; pointer-events: none; z-index: 21;
         }
 
-        /* Aspect Ratios */
+        /* Helper Classes */
         .aspect-square { aspect-ratio: 1/1; }
         .aspect-feed { aspect-ratio: 4/5; }
         .aspect-story { aspect-ratio: 9/16; }
         .aspect-landscape { aspect-ratio: 16/9; }
 
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: #333; }
-        ::-webkit-scrollbar-thumb:hover { background: #555; }
+        /* Toast Animation */
+        @keyframes slideUp {
+            from { transform: translate(-50%, 100%); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+        .toast-enter {
+            animation: slideUp 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+        }
+
+        #htmlText { line-height: 1.2 !important; }
+        
+        /* Color input wrapper styling */
+        .color-wrapper {
+            background: #dcdac5;
+            border: 2px solid #b8b4a4;
+            border-radius: 4px;
+            padding: 2px;
+            box-shadow: inset 1px 1px 3px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
-<body class="text-slate-300 min-h-screen flex flex-col items-center p-3 lg:p-8">
+<body class="min-h-screen flex flex-col items-center p-4 lg:p-8">
 
     <!-- HEADER -->
-    <header class="w-full max-w-6xl flex justify-between items-end mb-4 lg:mb-6 border-b border-gray-800 pb-4">
-        <div>
-            <h1 class="text-2xl lg:text-4xl font-black text-white tracking-tighter italic">
-                BEEN<span class="text-blue-600">TEXTER</span>_
-            </h1>
-            <p class="text-[10px] lg:text-xs text-gray-500 font-code mt-1 lowercase">/// 'feelin on typin'</p>
+    <header class="w-full max-w-7xl flex justify-between items-end mb-6 border-b-2 border-[#b8b4a4] pb-4">
+        <div class="flex items-center gap-3">
+            <!-- BRANDING UTAMA: BEENTEXTER -->
+            <div class="bg-[#333] text-white px-3 py-1 font-black italic tracking-tighter text-2xl skew-x-[-10deg] shadow-[2px_2px_0px_#cc5626]">
+                BEEN<span class="text-[#cc5626]">TEXTER</span>_
+            </div>
+            
+            <!-- SUB-BRANDING: RETRO THEME -->
+            <div class="flex flex-col justify-center h-full pt-1">
+                <h2 class="text-[10px] font-bold text-[#cc5626] tracking-widest uppercase leading-none">RETRO_CALC_EDITION</h2>
+                <p class="text-[9px] text-gray-500 font-code uppercase tracking-widest leading-none mt-1">Model-8080 // Graphic Unit</p>
+            </div>
         </div>
-        <div class="hidden md:block text-right">
-            <div class="text-[10px] text-gray-600">STATUS: ONLINE</div>
-            <div class="text-[10px] text-gray-600">RENDER: CANVAS_2D</div>
+        <div class="hidden md:block text-right font-tech text-xs text-[#666]">
+            <div class="flex items-center gap-2 justify-end">
+                <span class="w-2 h-2 bg-[#cc5626] rounded-full animate-pulse"></span>
+                <span>PWR: ON</span>
+            </div>
+            <div>BATTERY: [|||||]</div>
         </div>
     </header>
 
-    <!-- MAIN LAYOUT: flex-col-reverse untuk Mobile (Preview di atas), flex-row untuk Desktop (Kiri Kanan) -->
-    <div class="w-full max-w-6xl flex flex-col-reverse lg:flex-row gap-6 lg:gap-8 items-start">
+    <!-- MAIN APP LAYOUT -->
+    <div class="w-full max-w-7xl flex flex-col-reverse lg:flex-row gap-8 items-start">
 
-        <!-- LEFT PANEL: CONTROLS (Bawah di Mobile, Kiri di Desktop) -->
-        <!-- Added lg:sticky to keep controls visible on large screens -->
-        <div class="w-full lg:w-[350px] flex-shrink-0 space-y-4 lg:sticky lg:top-8">
+        <!-- CONTROLS PANEL (Sticky on Desktop) -->
+        <div class="w-full lg:w-[380px] flex-shrink-0 space-y-5 lg:sticky lg:top-4 z-30">
             
-            <!-- 1. INPUT -->
-            <div class="panel p-4">
-                <div class="flex justify-between mb-2">
-                    <label class="text-[10px] font-bold text-blue-500 uppercase tracking-widest">Input Stream</label>
-                    <span class="text-[10px] text-gray-600">TXT</span>
+            <!-- 1. INPUT (LCD STYLE) -->
+            <div class="panel p-5 relative">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-[10px] font-bold text-[#666] uppercase tracking-widest">DATA ENTRY</span>
+                    <!-- Solar Panel Effect -->
+                    <div class="flex gap-[1px]">
+                        <div class="w-3 h-4 bg-[#4a4a4a] border border-[#666]"></div>
+                        <div class="w-3 h-4 bg-[#4a4a4a] border border-[#666]"></div>
+                        <div class="w-3 h-4 bg-[#4a4a4a] border border-[#666]"></div>
+                        <div class="w-3 h-4 bg-[#4a4a4a] border border-[#666]"></div>
+                    </div>
                 </div>
-                <textarea id="quoteInput" rows="3" 
-                    class="w-full bg-black border border-gray-800 text-white p-3 font-tech text-base lg:text-lg focus:border-blue-600 outline-none placeholder-gray-700 resize-none" 
-                    placeholder="TYPE_HERE...">WHAT DOES FREEDOM LOOK LIKE WITH NO WITNESS?</textarea>
+                
+                <textarea id="quoteInput" rows="4" 
+                    class="lcd-screen w-full p-4 text-xl focus:outline-none resize-none leading-snug uppercase shadow-inner" 
+                    placeholder="ENTER TEXT...">WHAT DOES FREEDOM LOOK LIKE WITH NO WITNESS?</textarea>
+                
+                <div class="flex justify-between mt-2 text-[9px] text-gray-500 font-mono">
+                    <span id="charCount">0/280</span>
+                    <span>MATRIX: 8-BIT</span>
+                </div>
             </div>
 
-            <!-- 2. LAYOUT & FORMAT -->
-            <div class="panel p-4 space-y-4">
-                <div class="flex items-center gap-2 border-b border-gray-800 pb-2 mb-3">
-                    <i data-lucide="layout-grid" class="w-4 h-4 text-gray-400"></i>
-                    <span class="text-xs font-bold text-white uppercase">Canvas Config</span>
+            <!-- 2. CONFIGURATION -->
+            <div class="panel p-5 space-y-5">
+                <!-- Label Strip -->
+                <div class="bg-[#ccc9bb] p-1 border-b border-[#fff] mb-2 flex items-center gap-2">
+                    <div class="w-3 h-3 bg-[#444] rounded-full"></div>
+                    <span class="text-xs font-bold text-[#444] uppercase">System Config</span>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="text-[9px] text-gray-500 block mb-1">FORMAT</label>
-                        <select id="aspectSelect" class="w-full bg-black border border-gray-700 text-xs text-white p-2 outline-none focus:border-blue-600">
+                        <label class="text-[9px] text-[#666] block mb-1 font-bold uppercase">Format</label>
+                        <select id="aspectSelect" class="w-full btn-retro text-xs p-2 outline-none appearance-none cursor-pointer text-left">
                             <option value="square">1:1 Square</option>
                             <option value="feed">4:5 Portrait</option>
                             <option value="story">9:16 Story</option>
@@ -150,132 +259,152 @@
                         </select>
                     </div>
                     <div>
-                        <label class="text-[9px] text-gray-500 block mb-1">MODE</label>
-                        <select id="shapeSelect" class="w-full bg-black border border-gray-700 text-xs text-white p-2 outline-none focus:border-blue-600">
+                        <label class="text-[9px] text-[#666] block mb-1 font-bold uppercase">Mode</label>
+                        <select id="shapeSelect" class="w-full btn-retro text-xs p-2 outline-none appearance-none cursor-pointer text-left">
                             <option value="linear">Linear</option>
                             <option value="circle">Circular</option>
                         </select>
                     </div>
                 </div>
 
-                <!-- Alignment (Linear Only) -->
-                <div id="alignControlGroup">
-                    <label class="text-[9px] text-gray-500 block mb-1">ALIGNMENT</label>
-                    <div class="flex border border-gray-700 bg-black">
-                        <button class="flex-1 py-2 hover:bg-gray-800 text-gray-500 align-btn transition" data-align="left" onclick="setAlign('left')"><i data-lucide="align-left" class="w-3 h-3 mx-auto"></i></button>
-                        <button class="flex-1 py-2 hover:bg-gray-800 text-gray-500 align-btn transition" data-align="center" onclick="setAlign('center')"><i data-lucide="align-center" class="w-3 h-3 mx-auto"></i></button>
-                        <button class="flex-1 py-2 hover:bg-gray-800 text-gray-500 align-btn transition" data-align="right" onclick="setAlign('right')"><i data-lucide="align-right" class="w-3 h-3 mx-auto"></i></button>
+                <!-- Alignment Control -->
+                <div>
+                    <label class="text-[9px] text-[#666] block mb-1 font-bold uppercase">Alignment</label>
+                    <div class="flex gap-1 bg-[#dcdac5] p-1 rounded border border-[#b8b4a4] shadow-inner">
+                        <button class="flex-1 py-1 btn-retro text-[#555] align-btn hover:brightness-95" data-align="left" onclick="setAlign('left')"><i data-lucide="align-left" class="w-3.5 h-3.5 mx-auto"></i></button>
+                        <button class="flex-1 py-1 btn-retro text-[#555] align-btn hover:brightness-95" data-align="center" onclick="setAlign('center')"><i data-lucide="align-center" class="w-3.5 h-3.5 mx-auto"></i></button>
+                        <button class="flex-1 py-1 btn-retro text-[#555] align-btn hover:brightness-95" data-align="right" onclick="setAlign('right')"><i data-lucide="align-right" class="w-3.5 h-3.5 mx-auto"></i></button>
                     </div>
                 </div>
             </div>
 
-            <!-- 3. VISUALS -->
-            <div class="panel p-4 space-y-4">
-                <div class="flex items-center gap-2 border-b border-gray-800 pb-2 mb-3">
-                    <i data-lucide="sliders-horizontal" class="w-4 h-4 text-gray-400"></i>
-                    <span class="text-xs font-bold text-white uppercase">Visual Parameter</span>
+            <!-- 3. VISUAL PARAMETERS -->
+            <div class="panel p-5 space-y-5">
+                <div class="bg-[#ccc9bb] p-1 border-b border-[#fff] mb-2 flex items-center gap-2">
+                    <div class="w-3 h-3 bg-[#cc5626] rounded-full"></div>
+                    <span class="text-xs font-bold text-[#444] uppercase">Visual Tuner</span>
                 </div>
 
-                <!-- Font -->
+                <!-- Typography -->
                 <div>
-                    <label class="text-[9px] text-gray-500 block mb-1">TYPOGRAPHY</label>
-                    <select id="fontSelect" class="w-full bg-black border border-gray-700 text-xs text-white p-2 outline-none focus:border-blue-600 font-mono">
+                    <label class="text-[9px] text-[#666] block mb-1 font-bold uppercase">Typeface</label>
+                    <select id="fontSelect" class="w-full btn-retro text-xs p-2 outline-none appearance-none cursor-pointer text-left font-mono">
                         <option value="font-tech">Share Tech Mono (Cyber)</option>
-                        <option value="font-vt323">VT323 (Terminal)</option>
+                        <option value="font-vt323">VT323 (LCD)</option>
                         <option value="font-pixel">Press Start 2P (8-Bit)</option>
-                        <option value="font-code">JetBrains Mono (Code)</option>
+                        <option value="font-code">JetBrains Mono (Modern)</option>
                     </select>
                 </div>
 
                 <!-- Colors -->
-                <div class="flex gap-2">
+                <div class="flex gap-3">
                     <div class="flex-1">
-                        <label class="text-[9px] text-gray-500 block mb-1">BG COLOR</label>
-                        <div class="flex items-center bg-black border border-gray-700 p-1">
-                            <input type="color" id="bgColor" value="#3b82f6" class="w-full h-8 bg-transparent cursor-pointer">
+                        <label class="text-[9px] text-[#666] block mb-1 font-bold uppercase">Background</label>
+                        <div class="color-wrapper flex items-center">
+                            <input type="color" id="bgColor" value="#d6d3c2" class="w-full h-8 bg-transparent cursor-pointer rounded-sm border-none p-0">
                         </div>
                     </div>
                     <div class="flex-1">
-                        <label class="text-[9px] text-gray-500 block mb-1">TEXT COLOR</label>
-                        <div class="flex items-center bg-black border border-gray-700 p-1">
-                            <input type="color" id="textColor" value="#a5f3fc" class="w-full h-8 bg-transparent cursor-pointer">
+                        <label class="text-[9px] text-[#666] block mb-1 font-bold uppercase">Ink Color</label>
+                        <div class="color-wrapper flex items-center">
+                            <input type="color" id="textColor" value="#1a2218" class="w-full h-8 bg-transparent cursor-pointer rounded-sm border-none p-0">
                         </div>
                     </div>
                 </div>
 
                 <!-- Sliders -->
-                <div class="space-y-4 pt-2">
+                <div class="space-y-4 pt-2 bg-[#dcdac5] p-3 rounded border border-[#b8b4a4] shadow-inner">
                     <div class="space-y-1">
-                        <div class="flex justify-between text-[10px] uppercase text-gray-400"><span>Size</span> <span id="valSize" class="text-blue-500">48</span></div>
+                        <div class="flex justify-between text-[9px] uppercase font-bold text-[#555]"><span>Font Size</span> <span id="valSize" class="text-[#cc5626]">48</span></div>
                         <input type="range" id="sliderSize" min="10" max="150" value="48">
                     </div>
                     <div class="space-y-1">
-                        <div class="flex justify-between text-[10px] uppercase text-gray-400"><span>Noise</span> <span id="valNoise" class="text-blue-500">10%</span></div>
+                        <div class="flex justify-between text-[9px] uppercase font-bold text-[#555]"><span>Grain</span> <span id="valNoise" class="text-[#cc5626]">10%</span></div>
                         <input type="range" id="sliderNoise" min="0" max="50" value="10">
                     </div>
                     <div class="space-y-1">
-                        <div class="flex justify-between text-[10px] uppercase text-gray-400"><span>Glitch</span> <span id="valGlitch" class="text-red-500">0</span></div>
+                        <div class="flex justify-between text-[9px] uppercase font-bold text-[#555]"><span>Distortion</span> <span id="valGlitch" class="text-[#cc5626]">0</span></div>
                         <input type="range" id="sliderGlitch" min="0" max="20" value="0">
                     </div>
                 </div>
             </div>
 
-            <!-- ACTION -->
-            <button onclick="exportImage()" class="w-full py-4 bg-white text-black hover:bg-blue-600 hover:text-white transition-all font-black font-tech text-lg tracking-widest uppercase panel active:scale-[0.98] flex items-center justify-center gap-2 group mb-8 lg:mb-0">
-                <i data-lucide="download" class="w-5 h-5 group-hover:animate-bounce"></i>
-                Render Output
-            </button>
+            <!-- ACTIONS -->
+            <div class="flex gap-3 mb-8 lg:mb-0">
+                <button onclick="resetToDefault()" class="px-4 py-4 btn-retro btn-dark text-[10px] uppercase font-bold tracking-wider">
+                    C (CLR)
+                </button>
+                <button id="downloadBtn" onclick="exportImage()" class="flex-1 py-4 btn-retro btn-accent text-lg tracking-widest uppercase flex items-center justify-center gap-2 group">
+                    <span id="btnText">PRINT / SAVE</span>
+                    <i data-lucide="printer" class="w-5 h-5"></i>
+                </button>
+            </div>
 
         </div>
 
-        <!-- RIGHT PANEL: PREVIEW (Atas di Mobile, Kanan di Desktop) -->
-        <div class="w-full flex-1 flex flex-col items-center bg-[#080808] border border-gray-900 rounded-lg p-4 lg:p-12 relative overflow-hidden min-h-[300px]">
-            <!-- Decorative BG elements -->
-            <div class="absolute top-4 left-4 text-[10px] text-gray-800 font-mono">PREVIEW_MODE</div>
-            <div class="absolute bottom-4 right-4 text-[10px] text-gray-800 font-mono" id="resDisplay">1080x1080</div>
+        <!-- PREVIEW AREA -->
+        <div class="w-full flex-1 flex flex-col items-center">
+            
+            <div class="w-full bg-[#333] border-4 border-[#555] rounded-xl p-6 lg:p-10 relative min-h-[400px] flex items-center justify-center overflow-hidden shadow-2xl">
+                <!-- Screen Bezel Branding -->
+                <div class="absolute bottom-3 text-[#777] font-sans font-bold text-xs tracking-[0.2em] flex gap-4">
+                    <span>BEENTEXTER</span>
+                    <span>HD-DISPLAY</span>
+                </div>
 
-            <!-- The Container -->
-            <div id="previewContainer" class="relative shadow-2xl transition-all duration-300 ease-in-out bg-black aspect-square w-full max-w-[600px] group border border-gray-800">
-                
-                <!-- EFFECTS LAYER (HTML CSS PREVIEW) -->
-                <div class="scanlines opacity-50"></div>
-                <div class="vignette opacity-60"></div>
-                <div id="noiseLayer" class="noise"></div>
-
-                <!-- CONTENT LAYER -->
-                <div id="previewContent" class="absolute inset-0 z-10 flex flex-col p-8 overflow-hidden transition-colors duration-100">
+                <!-- The Container -->
+                <div id="previewContainer" class="relative shadow-xl transition-all duration-300 ease-in-out bg-[#d6d3c2] aspect-square w-full max-w-[600px] group select-none overflow-hidden">
                     
-                    <!-- HTML Text Mode -->
-                    <div id="htmlTextWrapper" class="w-full h-full flex items-center">
-                        <h1 id="htmlText" class="w-full break-words whitespace-pre-wrap leading-tight uppercase transition-none" style="font-size: 48px;">
-                            WHAT DOES FREEDOM LOOK LIKE WITH NO WITNESS?
-                        </h1>
+                    <!-- EFFECTS LAYER -->
+                    <div class="scanlines opacity-20 pointer-events-none"></div>
+                    <div class="vignette opacity-30 pointer-events-none"></div>
+                    <div id="noiseLayer" class="noise pointer-events-none"></div>
+
+                    <!-- CONTENT LAYER -->
+                    <div id="previewContent" class="absolute inset-0 z-10 flex flex-col p-8 overflow-hidden transition-colors duration-100">
+                        
+                        <!-- HTML Text Mode -->
+                        <div id="htmlTextWrapper" class="w-full h-full flex items-center">
+                            <h1 id="htmlText" class="w-full break-words whitespace-pre-wrap uppercase transition-none text-[#1a2218]" style="font-size: 48px;">
+                                WHAT DOES FREEDOM LOOK LIKE WITH NO WITNESS?
+                            </h1>
+                        </div>
+
+                        <!-- Canvas Circle Mode -->
+                        <canvas id="circlePreviewCanvas" class="absolute inset-0 w-full h-full hidden pointer-events-none"></canvas>
+
                     </div>
-
-                    <!-- Canvas Circle Mode (Hidden by default) -->
-                    <canvas id="circlePreviewCanvas" class="absolute inset-0 w-full h-full hidden pointer-events-none"></canvas>
-
                 </div>
             </div>
-            <p class="mt-4 text-[10px] text-gray-600 font-mono text-center max-w-md hidden lg:block">
-                NOTE: Preview is an approximation. "Render Output" creates the high-fidelity PNG with baked-in effects.
-            </p>
+            
+            <div class="mt-4 flex gap-4 text-[#666]">
+                <div class="text-[10px] font-mono flex items-center gap-1">
+                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div> READY
+                </div>
+                <div class="text-[10px] font-mono text-center" id="resDisplay">1080x1080</div>
+            </div>
         </div>
 
     </div>
 
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-opacity">
+        <div class="bg-[#333] text-[#0f0] font-vt323 text-xl px-6 py-2 border-2 border-[#555] shadow-lg rounded flex items-center gap-2">
+            <span class="animate-pulse">></span> SYSTEM: <span id="toastMsg">RENDER COMPLETE</span>
+        </div>
+    </div>
+
     <!-- FOOTER CREDIT -->
-    <footer class="w-full max-w-6xl mt-6 lg:mt-12 py-6 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center text-[10px] text-gray-500 font-code gap-2">
+    <footer class="w-full max-w-7xl mt-12 py-6 border-t-2 border-[#b8b4a4] flex flex-col md:flex-row justify-between items-center text-[10px] text-[#777] font-mono gap-2">
         <div>
-            // SYSTEM_ID: BNTX_V3.2
+            © 2024 BEENTEXTER INC. [RETRO_DIV]
         </div>
         <div class="flex items-center gap-4">
-            <span>LINKS:</span>
-            <a href="https://instagram.com/beenspace" target="_blank" class="hover:text-blue-500 hover:underline transition-colors flex items-center gap-1">
+            <a href="#" class="hover:text-[#cc5626] transition-colors flex items-center gap-1">
                 <i data-lucide="instagram" class="w-3 h-3"></i> beenspace
             </a>
-            <span class="text-gray-700">|</span>
-            <a href="https://github.com/muqorrobinize" target="_blank" class="hover:text-blue-500 hover:underline transition-colors flex items-center gap-1">
+            <span class="text-[#bbb]">|</span>
+            <a href="#" class="hover:text-[#cc5626] transition-colors flex items-center gap-1">
                 <i data-lucide="github" class="w-3 h-3"></i> B$4BEIN
             </a>
         </div>
@@ -285,6 +414,7 @@
     <canvas id="exportCanvas" style="display: none;"></canvas>
 
     <script>
+        // Initialize Icons
         lucide.createIcons();
 
         // --- DOM ELEMENTS ---
@@ -314,10 +444,12 @@
             vNoise: document.getElementById('valNoise'),
             vGlitch: document.getElementById('valGlitch'),
             resDisplay: document.getElementById('resDisplay'),
-            alignGroup: document.getElementById('alignControlGroup')
+            charCount: document.getElementById('charCount')
         };
 
-        // --- STATE ---
+        // --- STATE & CONFIG ---
+        const BASE_WIDTH = 1080;
+        
         let state = {
             align: 'left',
             aspects: {
@@ -328,97 +460,155 @@
             }
         };
 
-        // --- UPDATE UI LOGIC ---
-        function updatePreview() {
+        // --- STORAGE MANAGER ---
+        const STORAGE_KEY = 'beentexter_retro_v1';
+        
+        function saveState() {
+            const data = {
+                text: els.input.value,
+                aspect: els.aspect.value,
+                shape: els.shape.value,
+                font: els.font.value,
+                bg: els.bgColor.value,
+                color: els.textColor.value,
+                size: els.sSize.value,
+                noise: els.sNoise.value,
+                glitch: els.sGlitch.value,
+                align: state.align
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+
+        function loadState() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    if(data.text) els.input.value = data.text;
+                    if(data.aspect) els.aspect.value = data.aspect;
+                    if(data.shape) els.shape.value = data.shape;
+                    if(data.font) els.font.value = data.font;
+                    if(data.bg) els.bgColor.value = data.bg;
+                    if(data.color) els.textColor.value = data.color;
+                    if(data.size) els.sSize.value = data.size;
+                    if(data.noise) els.sNoise.value = data.noise;
+                    if(data.glitch) els.sGlitch.value = data.glitch;
+                    if(data.align) setAlign(data.align, false);
+                    
+                    updatePreview(false);
+                } catch (e) {
+                    console.error("Save file corrupted, resetting.");
+                }
+            } else {
+                // Set Default Retro Colors if no save
+                els.bgColor.value = "#d6d3c2";
+                els.textColor.value = "#1a2218";
+            }
+        }
+
+        function resetToDefault() {
+            if(confirm('RESET SYSTEM?')) {
+                localStorage.removeItem(STORAGE_KEY);
+                location.reload();
+            }
+        }
+
+        // --- CORE UPDATE LOGIC ---
+        function updatePreview(shouldSave = true) {
             const txt = els.input.value.toUpperCase() || " ";
             const shape = els.shape.value;
             const aspect = state.aspects[els.aspect.value];
 
+            els.charCount.innerText = `${txt.length}/280`;
+
             // 1. Container Shape & Size
-            els.container.className = `relative shadow-2xl transition-all duration-300 ease-in-out border border-gray-800 w-full max-w-[600px] ${aspect.class}`;
-            els.resDisplay.innerText = `${aspect.w}x${aspect.h}px`;
+            els.container.className = `relative shadow-xl transition-all duration-300 ease-in-out border-none w-full ${aspect.class}`;
+            els.resDisplay.innerText = `${aspect.w}x${aspect.h}`;
 
             // 2. Colors
             els.content.style.backgroundColor = els.bgColor.value;
             els.htmlText.style.color = els.textColor.value;
 
-            // 3. Noise Overlay Opacity
+            // 3. Noise
             const noiseVal = els.sNoise.value;
             els.noiseLayer.style.opacity = noiseVal / 100;
             els.vNoise.innerText = noiseVal + "%";
 
-            // 4. Glitch CSS (Preview Only)
+            // 4. Glitch
             const glitchVal = parseInt(els.sGlitch.value);
             els.vGlitch.innerText = glitchVal;
             const glitchShadow = glitchVal > 0 
-                ? `${glitchVal}px 0px 0px rgba(255,0,0,0.7), -${glitchVal}px 0px 0px rgba(0,255,255,0.7)` 
+                ? `${glitchVal}px 0px 0px rgba(255,0,0,0.5), -${glitchVal}px 0px 0px rgba(0,255,255,0.5)` 
                 : 'none';
 
-            // 5. Render Mode Switch
+            // 5. Render Mode
             if (shape === 'circle') {
                 els.htmlWrapper.classList.add('hidden');
                 els.circleCanvas.classList.remove('hidden');
-                els.alignGroup.classList.add('opacity-30', 'pointer-events-none');
-                
                 renderCirclePreview(txt, glitchVal);
             } else {
                 els.htmlWrapper.classList.remove('hidden');
                 els.circleCanvas.classList.add('hidden');
-                els.alignGroup.classList.remove('opacity-30', 'pointer-events-none');
 
-                // Update HTML Text
+                const containerWidth = els.container.offsetWidth;
+                const scaleRatio = containerWidth / aspect.w;
+                const safeScale = scaleRatio > 0 ? scaleRatio : 0.5;
+                const adaptiveFontSize = els.sSize.value * safeScale;
+
                 els.htmlText.innerText = txt;
-                els.htmlText.style.fontSize = els.sSize.value + 'px';
-                els.vSize.innerText = els.sSize.value + 'px';
+                els.htmlText.style.fontSize = adaptiveFontSize + 'px';
+                els.vSize.innerText = els.sSize.value;
                 
-                // Font
-                els.htmlText.className = `w-full break-words whitespace-pre-wrap leading-tight uppercase transition-none ${els.font.value}`;
+                els.htmlText.className = `w-full break-words whitespace-pre-wrap uppercase transition-none ${els.font.value}`;
                 
-                // Align
                 els.htmlText.style.textAlign = state.align;
                 els.htmlText.style.textShadow = glitchShadow;
                 
-                // Centering Wrapper
                 els.htmlWrapper.className = `w-full h-full flex flex-col ${
                     state.align === 'center' ? 'items-center justify-center' : 
                     state.align === 'right' ? 'items-end justify-center' : 
                     'items-start justify-center'
                 }`;
             }
+
+            if(shouldSave) saveState();
         }
 
-        // --- CIRCLE PREVIEW ON CANVAS ---
+        window.addEventListener('resize', () => {
+            requestAnimationFrame(() => updatePreview(false));
+        });
+
         function renderCirclePreview(text, glitch) {
             const canvas = els.circleCanvas;
             const ctx = canvas.getContext('2d');
             const rect = els.container.getBoundingClientRect();
             
-            // Match Resolution
             canvas.width = rect.width;
             canvas.height = rect.height;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            const scale = canvas.width / 600; // Reference scale
-            const fontSize = els.sSize.value * scale;
+            const aspectConfig = state.aspects[els.aspect.value];
+            const scaleRatio = rect.width / aspectConfig.w;
+            const adaptiveFontSize = els.sSize.value * scaleRatio;
 
             ctx.fillStyle = els.textColor.value;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             
-            // Font Mapping
             const fontMap = {
                 'font-tech': "'Share Tech Mono', monospace",
                 'font-vt323': "'VT323', monospace",
                 'font-pixel': "'Press Start 2P', cursive",
                 'font-code': "'JetBrains Mono', monospace"
             };
-            ctx.font = `${fontSize}px ${fontMap[els.font.value]}`;
+            ctx.font = `${adaptiveFontSize}px ${fontMap[els.font.value]}`;
 
             const cx = canvas.width / 2;
             const cy = canvas.height / 2;
             const radius = Math.min(cx, cy) * 0.75;
+            const adaptiveGlitch = glitch * scaleRatio;
 
-            drawCircularText(ctx, text, cx, cy, radius, 0, glitch * scale);
+            drawCircularText(ctx, text, cx, cy, radius, 0, adaptiveGlitch);
         }
 
         function drawCircularText(ctx, text, cx, cy, radius, startAngle, glitch) {
@@ -427,7 +617,7 @@
 
             ctx.save();
             ctx.translate(cx, cy);
-            ctx.rotate(-Math.PI / 2); // Start Top
+            ctx.rotate(-Math.PI / 2); 
 
             chars.forEach((char, i) => {
                 ctx.save();
@@ -435,9 +625,9 @@
                 ctx.translate(0, -radius);
 
                 if (glitch > 0) {
-                    ctx.fillStyle = 'rgba(255,0,0,0.8)';
+                    ctx.fillStyle = 'rgba(255,0,0,0.5)';
                     ctx.fillText(char, glitch, 0);
-                    ctx.fillStyle = 'rgba(0,255,255,0.8)';
+                    ctx.fillStyle = 'rgba(0,255,255,0.5)';
                     ctx.fillText(char, -glitch, 0);
                     ctx.fillStyle = els.textColor.value;
                 }
@@ -447,18 +637,59 @@
             ctx.restore();
         }
 
-        function setAlign(align) {
+        function setAlign(align, save = true) {
             state.align = align;
-            // Update buttons
+            // Update button styles for retro feel (inset when active)
             document.querySelectorAll('.align-btn').forEach(btn => {
                 const isActive = btn.dataset.align === align;
-                btn.style.color = isActive ? '#2563eb' : '#6b7280';
+                if(isActive) {
+                    btn.classList.add('shadow-inner', 'bg-[#d1cdb7]');
+                    btn.classList.remove('shadow-sm');
+                    btn.style.transform = 'translate(1px, 1px)';
+                    btn.style.color = '#cc5626';
+                } else {
+                    btn.classList.remove('shadow-inner', 'bg-[#d1cdb7]');
+                    btn.style.transform = 'none';
+                    btn.style.color = '#555';
+                }
             });
-            updatePreview();
+            updatePreview(save);
         }
 
-        // --- EXPORT LOGIC ---
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            toast.classList.remove('toast-enter');
+            void toast.offsetWidth; 
+            toast.classList.add('toast-enter');
+            
+            setTimeout(() => {
+                toast.classList.remove('toast-enter');
+                toast.style.opacity = 0;
+            }, 3000);
+        }
+
         function exportImage() {
+            const btn = document.getElementById('downloadBtn');
+            const originalText = document.getElementById('btnText').innerText;
+            btn.innerHTML = `<i data-lucide="loader" class="w-5 h-5 animate-spin"></i> PRINTING...`;
+            lucide.createIcons();
+
+            setTimeout(() => {
+                try {
+                    performExport();
+                    showToast("OUTPUT GENERATED");
+                } catch(e) {
+                    console.error(e);
+                    showToast("ERROR: PAPER JAM");
+                } finally {
+                    btn.innerHTML = `<span id="btnText">${originalText}</span> <i data-lucide="printer" class="w-5 h-5"></i>`;
+                    lucide.createIcons();
+                }
+            }, 100);
+        }
+
+        function performExport() {
             const canvas = document.getElementById('exportCanvas');
             const ctx = canvas.getContext('2d');
             
@@ -471,9 +702,10 @@
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             // 2. Text Setup
-            const scaleFactor = canvas.width / 600; // Based on preview width
-            const fontSize = els.sSize.value * scaleFactor;
+            const scaleFactor = canvas.width / 1080;
+            const fontSize = els.sSize.value * scaleFactor; 
             const glitch = parseInt(els.sGlitch.value) * scaleFactor;
+            
             const fontMap = {
                 'font-tech': "'Share Tech Mono', monospace",
                 'font-vt323': "'VT323', monospace",
@@ -485,7 +717,7 @@
 
             const text = els.input.value.toUpperCase();
 
-            // 3. Draw Text
+            // 3. Draw
             if (els.shape.value === 'circle') {
                 ctx.textBaseline = 'middle';
                 ctx.textAlign = 'center';
@@ -493,45 +725,48 @@
                 drawCircularText(ctx, text, canvas.width/2, canvas.height/2, radius, 0, glitch);
             } else {
                 ctx.textBaseline = 'top';
-                // Very Simple wrapping logic for Linear
-                const lineHeight = fontSize * 1.15;
-                const maxWidth = canvas.width - (160 * scaleFactor); // Padding
-                const words = text.split(' ');
-                let line = '';
-                let y = 0;
-                let lines = [];
+                const lineHeight = fontSize * 1.2; 
+                const padding = canvas.width * 0.08; 
+                const maxWidth = canvas.width - (padding * 2); 
+                
+                const paragraphs = text.split('\n');
+                let allLines = [];
 
-                // Simple wrap
-                for(let n = 0; n < words.length; n++) {
-                    let testLine = line + words[n] + ' ';
-                    let metrics = ctx.measureText(testLine);
-                    let testWidth = metrics.width;
-                    if (testWidth > maxWidth && n > 0) {
-                        lines.push(line);
-                        line = words[n] + ' ';
-                    } else {
-                        line = testLine;
+                paragraphs.forEach(para => {
+                    const words = para.split(' ');
+                    let line = '';
+                    if (para === '') { allLines.push(''); return; }
+
+                    for(let n = 0; n < words.length; n++) {
+                        let testLine = line + words[n] + ' ';
+                        let metrics = ctx.measureText(testLine);
+                        let testWidth = metrics.width;
+                        if (testWidth > maxWidth && n > 0) {
+                            allLines.push(line);
+                            line = words[n] + ' ';
+                        } else {
+                            line = testLine;
+                        }
                     }
-                }
-                lines.push(line);
+                    allLines.push(line);
+                });
 
-                // Calculate Start Y for Vertical Center
-                const totalTextH = lines.length * lineHeight;
-                let startY = (canvas.height - totalTextH) / 2;
+                let startY = (canvas.height - (allLines.length * lineHeight)) / 2;
 
-                lines.forEach((l, i) => {
-                    let x = 100 * scaleFactor; // Default Left Padding
+                allLines.forEach((l, i) => {
+                    let x;
                     if(state.align === 'center') x = canvas.width / 2;
-                    if(state.align === 'right') x = canvas.width - (100 * scaleFactor);
+                    else if(state.align === 'right') x = canvas.width - padding;
+                    else x = padding;
                     
                     ctx.textAlign = state.align;
 
                     const drawY = startY + (i * lineHeight);
 
                     if (glitch > 0) {
-                        ctx.fillStyle = 'rgba(255,0,0,0.8)';
+                        ctx.fillStyle = 'rgba(255,0,0,0.5)';
                         ctx.fillText(l, x + glitch, drawY);
-                        ctx.fillStyle = 'rgba(0,255,255,0.8)';
+                        ctx.fillStyle = 'rgba(0,255,255,0.5)';
                         ctx.fillText(l, x - glitch, drawY);
                         ctx.fillStyle = els.textColor.value;
                     }
@@ -539,58 +774,52 @@
                 });
             }
 
-            // 4. Effects (Baked In)
-            
+            // 4. Effects
             // Scanlines
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
             for (let i = 0; i < canvas.height; i += 6) { ctx.fillRect(0, i, canvas.width, 3); }
 
-            // Noise (Procedural Grain)
+            // Noise
             const noiseIntensity = els.sNoise.value;
             if (noiseIntensity > 0) {
-                const idata = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                const buffer32 = new Uint32Array(idata.data.buffer);
-                const len = buffer32.length;
-                const alpha = Math.floor((noiseIntensity/100) * 255);
-                // Since per-pixel JS manipulation is heavy for 4k images, 
-                // let's use a simpler overlay method for the export:
-                ctx.globalCompositeOperation = 'overlay';
-                
-                for (let x = 0; x < canvas.width; x += 4) {
-                    for (let y = 0; y < canvas.height; y += 4) {
-                        if (Math.random() > 0.5) {
-                            ctx.fillStyle = `rgba(255,255,255,${noiseIntensity/300})`; // Light grain
-                            ctx.fillRect(x, y, 2, 2);
-                            ctx.fillStyle = `rgba(0,0,0,${noiseIntensity/300})`; // Dark grain
-                            ctx.fillRect(x+2, y+2, 2, 2);
-                        }
-                    }
-                }
-                ctx.globalCompositeOperation = 'source-over';
+               ctx.globalCompositeOperation = 'overlay';
+               const opacity = noiseIntensity / 300; 
+               const grainSize = 4;
+               for (let x = 0; x < canvas.width; x += grainSize * 4) {
+                   for (let y = 0; y < canvas.height; y += grainSize * 4) {
+                       if (Math.random() > 0.5) {
+                           ctx.fillStyle = `rgba(255,255,255,${opacity})`;
+                           ctx.fillRect(x, y, grainSize, grainSize);
+                           ctx.fillStyle = `rgba(0,0,0,${opacity})`;
+                           ctx.fillRect(x + grainSize, y + grainSize, grainSize, grainSize);
+                       }
+                   }
+               }
+               ctx.globalCompositeOperation = 'source-over';
             }
 
             // Vignette
             const gradient = ctx.createRadialGradient(canvas.width/2, canvas.height/2, canvas.height * 0.4, canvas.width/2, canvas.height/2, canvas.height * 0.9);
             gradient.addColorStop(0, 'rgba(0,0,0,0)');
-            gradient.addColorStop(1, 'rgba(0,0,0,0.6)');
+            gradient.addColorStop(1, 'rgba(0,0,0,0.3)');
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Download
             const link = document.createElement('a');
-            link.download = `BEENTEXTER_RENDER_${Date.now()}.png`;
-            link.href = canvas.toDataURL('image/png');
+            link.download = `BEEN_RETRO_${Date.now()}.png`;
+            link.href = canvas.toDataURL('image/png', 0.9);
             link.click();
         }
 
         // --- INIT ---
         Object.values(els).forEach(el => {
-            if(el && el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') {
-                el.addEventListener('input', updatePreview);
+            if(el && (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA')) {
+                el.addEventListener('input', () => updatePreview(true));
             }
         });
-        setAlign('left'); // Init align
-        updatePreview();
+        
+        loadState();
+        setTimeout(() => updatePreview(false), 100);
 
     </script>
 </body>
